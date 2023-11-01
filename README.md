@@ -15,6 +15,7 @@ A proposta desse projeto é o desenvolvimento de um sistema IoT utilizando MQTT 
 Utilizou-se o Altium Designer para desenvolvimento do esquema elétrico e pcb. É possível visualizar os resultados nas imagens abaixo. 
 
 [T3_SCH.pdf](https://github.com/samuellbs/Controle-e-Monitoramento-IoT/files/13232578/T3_SCH.pdf)
+
 ![image](https://github.com/samuellbs/Controle-e-Monitoramento-IoT/assets/103770785/3e4179ea-695d-4172-8e80-6bad7860c981)
 
 A tabela abaixo indica os componentes utilizados, bem como os preços deles (01/11/2023) como forma de realizar um levantamento de custo.
