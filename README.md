@@ -12,9 +12,9 @@ A proposta desse projeto é o desenvolvimento de um sistema IoT utilizando MQTT 
 
 # 💻 Componentes Eletrônicos e Esquema Elétrico 
 
-O software utilizado para o desenvolvimento do esquemático foi o Altium, e é possível observar na figura abaixo as ligações.
+Utilizou-se o Altium Designer para desenvolvimento do esquema elétrico e pcb. É possível visualizar os resultados nas imagens abaixo. 
 
-![image](https://github.com/samuellbs/Alimentador_PET/assets/103770785/8689b729-66f0-4c9b-b2c6-f63c6623cd45)
+[T3_SCH.pdf](https://github.com/samuellbs/Controle-e-Monitoramento-IoT/files/13232578/T3_SCH.pdf)
 
 A placa final desenvolvida não utilizou um diodo em paralelo com o motor, mas é recomendável utilizar para evitar a tensão reversa no transistor. 
 
