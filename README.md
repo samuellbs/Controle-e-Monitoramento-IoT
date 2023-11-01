@@ -20,7 +20,8 @@ Utilizou-se o Altium Designer para desenvolvimento do esquema elétrico e pcb. �
 
 A tabela abaixo indica os componentes utilizados, bem como os preços deles (01/11/2023) como forma de realizar um levantamento de custo.
 
-![image](https://github.com/samuellbs/Alimentador_PET/assets/103770785/cd5911a6-a360-4e6c-b6f2-1e72f2a021fb)
+![image](https://github.com/samuellbs/Controle-e-Monitoramento-IoT/assets/103770785/14538ad9-6f4f-44d7-8b4b-d9bb8af0be96)
+
 
 
 
