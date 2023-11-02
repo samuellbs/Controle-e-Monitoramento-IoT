@@ -12,7 +12,7 @@ A proposta desse projeto é o desenvolvimento de um sistema IoT utilizando MQTT 
 
 # 💻 Componentes Eletrônicos e Esquema Elétrico 
 
-Utilizou-se o Altium Designer para desenvolvimento do esquema elétrico e pcb. É possível visualizar os resultados nas imagens abaixo. 
+Utilizou-se o Altium Designer para desenvolvimento do esquema elétrico e PCB. É possível visualizar os resultados nas imagens abaixo. 
 
 [T3_SCH.pdf](https://github.com/samuellbs/Controle-e-Monitoramento-IoT/files/13232578/T3_SCH.pdf)
 
@@ -26,7 +26,9 @@ A tabela abaixo indica os componentes utilizados, bem como os preços deles (01/
 
 #  ⚙️ Funcionamento do sistema
 
-O principal objetivo do projeto é o acionamento remoto via MQTT de relés de sinal fraco (biestáveis e latch). Dessa maneira, desenvolveu-se o hardware que atendesse as necessidades, isto é, o display OLED I2C é utilizado para visualização local dos status dos relés (on ou off) e os leds verde e vermelho, indicam conexão com o Wi-Fi e com o MQTT broker, respectivamente. 
+O principal objetivo do projeto é o acionamento remoto via MQTT de relés de sinal fraco (biestáveis e latch). Dessa maneira, desenvolveu-se o hardware que atendesse as necessidades, isto é, o display OLED I2C é utilizado para visualização local dos status dos relés (on ou off) e os leds verde e vermelho, indicam conexão com o Wi-Fi e com o MQTT broker, respectivamente. O diagrama de blocos abaixo indica o funciomanento do sistema:
+
+![image](https://github.com/samuellbs/Controle-e-Monitoramento-IoT/assets/103770785/7c5200fd-3a30-49be-9b93-34a8e63fd5f2)
 
 A plataforma MQTT escolhida para desenvolvimento da infraestrutura necessária para acionamento e monitoramento online foi o Ubidots. Dessa maneira, o hardware está conectado com a internet, enviando dados (status dos relés) para a plataforma, bem como recebendo os dados da plataforma. Um ponto interessante a se destacar é o tempo de envio das variáveis para a plataforma. O autor determinou que a cada um minuto haja o envio dos status dos relés, todavia o recebimento de comando da plataforma, ou seja, acionar o relé, ocorre no mesmo tempo em que o botão foi acionado, porém há o intervalo de um minuto para atualização no dashboard online e no display físico da PCB. É possível visualizar o dashboard no link: https://stem.ubidots.com/app/dashboards/public/dashboard/w4wUidUygCJmY1CnEOmew5zm_JMcHxWhb3yMTTkWDmA
 
