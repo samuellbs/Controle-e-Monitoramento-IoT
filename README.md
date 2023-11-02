@@ -35,13 +35,5 @@ As imagens e o vídeo abaixo são dedicadas para o funcionamento real do projeto
 ![image](https://github.com/samuellbs/Controle-e-Monitoramento-IoT/assets/103770785/49a1c66f-f324-40eb-9020-9797776d1169)
 ![image](https://github.com/samuellbs/Controle-e-Monitoramento-IoT/assets/103770785/479fa14b-0d01-4574-bb2f-cf38ccf0cfc5)
 ![image](https://github.com/samuellbs/Controle-e-Monitoramento-IoT/assets/103770785/6c0e07a6-2af1-4f0b-a92e-10b674309328)
+Vídeo de funcionamento: https://github.com/samuellbs/Controle-e-Monitoramento-IoT/assets/103770785/4b611a5f-120c-4a5c-bae1-b58c73cc2766
 
-
-
-
-
-https://github.com/samuellbs/Alimentador_PET/assets/103770785/105a38ab-1e81-4e2a-8d41-1488f6c5eada
-
-https://github.com/samuellbs/Alimentador_PET/assets/103770785/1b54e7d9-1f1e-4d01-a8e0-5c319d7db13d
-
-É importante ressaltar que a estrutura física escolhida, não foi desenvolvida pelos autores desse projeto. A escolha foi por uma estrutura da UsinaINFO, que atendia as necessidades.
