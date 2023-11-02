@@ -26,11 +26,14 @@ A tabela abaixo indica os componentes utilizados, bem como os preços deles (01/
 
 #  ⚙️ Funcionamento do sistema
 
-O projeto apresenta um display OLED I2C que indica o horário atual. Dessa forma, quando o botão é apertado, ocorrem duas situações simultâneas. A primeira é a saturação do transistor BC548 permitindo que o LED acenda. Como também, o pino D18 do ESP32 está "monitorando" o acionamento do botão, para que exiba no display "Hora da comida" e acione o motor para liberação da comida. É importante ressaltar que a proposta do botão é permitir que o usuário despeje a comida quando quiser.
+O principal objetivo do projeto é o acionamento remoto via MQTT de relés de sinal fraco (biestáveis e latch). Dessa maneira, desenvolveu-se o hardware que atendesse as necessidades, isto é, o display OLED I2C é utilizado para visualização local dos status dos relés (on ou off) e os leds verde e vermelho, indicam conexão com o Wi-Fi e com o MQTT broker, respectivamente. 
 
-Por outro lado, como a proposta do sistema é ser um alimentador pet automático, através do código é possível definir horários para que a comida seja despejada no pote. No caso do software original, estão definidos os horários 07:30:00 e 19:30:00. As imagens abaixo são dedicadas para o funcionamento real do projeto, incluindo a placa final soldada, estrutura física e exemplos do funcionamento descrito acima.
+A plataforma MQTT escolhida para desenvolvimento da infraestrutura necessária para acionamento e monitoramento online foi o Ubidots. Dessa maneira, o hardware está conectado com a internet, enviando dados (status dos relés) para a plataforma, bem como recebendo os dados da plataforma. Um ponto interessante a se destacar é o tempo de envio das variáveis para a plataforma. O autor determinou que a cada um minuto haja o envio dos status dos relés, todavia o recebimento de comando da plataforma, ou seja, acionar o relé, ocorre no mesmo tempo em que o botão foi acionado, porém há o intervalo de um minuto para atualização no dashboard online e no display físico da PCB. É possível visualizar o dashboard no link: https://stem.ubidots.com/app/dashboards/public/dashboard/w4wUidUygCJmY1CnEOmew5zm_JMcHxWhb3yMTTkWDmA
 
-![image](https://github.com/samuellbs/Alimentador_PET/assets/103770785/db1bf6cf-6dea-44c6-ac03-a2b49627749c)
+As imagens e o vídeo abaixo são dedicadas para o funcionamento real do projeto, incluindo a PCB final, dashboard online e exemplos do funcionamento descrito acima.
+
+![image](https://github.com/samuellbs/Controle-e-Monitoramento-IoT/assets/103770785/49a1c66f-f324-40eb-9020-9797776d1169)
+
 
 https://github.com/samuellbs/Alimentador_PET/assets/103770785/105a38ab-1e81-4e2a-8d41-1488f6c5eada
 
