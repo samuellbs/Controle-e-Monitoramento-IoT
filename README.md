@@ -33,6 +33,11 @@ A plataforma MQTT escolhida para desenvolvimento da infraestrutura necessária p
 As imagens e o vídeo abaixo são dedicadas para o funcionamento real do projeto, incluindo a PCB final, dashboard online e exemplos do funcionamento descrito acima.
 
 ![image](https://github.com/samuellbs/Controle-e-Monitoramento-IoT/assets/103770785/49a1c66f-f324-40eb-9020-9797776d1169)
+![image](https://github.com/samuellbs/Controle-e-Monitoramento-IoT/assets/103770785/479fa14b-0d01-4574-bb2f-cf38ccf0cfc5)
+![image](https://github.com/samuellbs/Controle-e-Monitoramento-IoT/assets/103770785/6c0e07a6-2af1-4f0b-a92e-10b674309328)
+
+
+
 
 
 https://github.com/samuellbs/Alimentador_PET/assets/103770785/105a38ab-1e81-4e2a-8d41-1488f6c5eada
