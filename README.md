@@ -42,7 +42,8 @@ Vídeo de funcionamento: https://github.com/samuellbs/Controle-e-Monitoramento-I
 # ⌨️ Software Versão 0
 
 ```
-/*    Programa: Acionamento e monitoramento remoto via MQTT
+/*
+      Programa: Acionamento e monitoramento remoto via MQTT
       Autor: Samuel Barros Souza   (RA: 20.01044-3)
 
       Versão: 0
@@ -53,7 +54,6 @@ Vídeo de funcionamento: https://github.com/samuellbs/Controle-e-Monitoramento-I
 
 */
 
-
 // definição de bibliotecas
 #include <Wire.h>
 #include <WiFi.h>
@@ -62,8 +62,8 @@ Vídeo de funcionamento: https://github.com/samuellbs/Controle-e-Monitoramento-I
 #include <Adafruit_SSD1306.h>
 
 
-#define WIFISSID "NOME_WIFI"                                 //Coloque seu SSID de WiFi aqui
-#define PASSWORD "SENHA_WIFI"                               //Coloque seu password de WiFi aqui
+#define WIFISSID "Samuel’s iPhone"   //Samuel’s iPhone      //Coloque seu SSID de WiFi aqui
+#define PASSWORD "samuel123"                               //Coloque seu password de WiFi aqui
 #define TOKEN "BBFF-xHc30n4EJalYtrj4L3lWvQN2VT9Dl9"        //Coloque seu TOKEN do Ubidots aqui
 #define VARIABLE_LABEL_RELE3DW "rele3_teste"              //Label referente a variável criada no ubidots
 #define VARIABLE_LABEL_RELE3UP "rele3_uplink"            //Label referente a variável criada no ubidots
@@ -91,31 +91,29 @@ PubSubClient client(ubidots);     //Objeto PubSubClient usado para publish–sub
 
 
 //definição de pinos
-#define PIN_GREEN         33
-#define PIN_RED           32
+#define LED_GREEN         33
+#define LED_RED           32
 #define PIN_FEED3         13
 #define PIN_POS3          12
 #define PIN_NEG3          14
 
 
+
 String deviceName   = "T3_REV_00";    //nome do dispositivo
+String engineerName = "Samuel";
 
 //criacao das flags
 char fs_bt1   = 0;
 char fs_100ms = 0;   //flags de estado para cada x segundos
 char fs_60s  = 0;
 char fs_1s    = 0;
-char fs_30s = 0;
 
 
 
 // criacao dos timers
-int millis_atual_100ms;
-int millis_atual_60s;
-int millis_atual_30s;
-int millis_atual_1s;
-
-
+unsigned long millis_atual_100ms;
+unsigned long millis_atual_60s;
+unsigned long  millis_atual_1s;
 
 
 // definição dos argumentos para subscribe MQTT
@@ -131,9 +129,30 @@ int countSEND = 0;
 int countRECEIVED0 = 0;
 int countRECEIVED1 = 0;
 int recebido;
+int estado;
 
-void setup() {
+typedef struct
+{
+  bool internetOFF;
+  bool aciona_internetOFF;
+  bool mqttOFF;
+  bool aciona_mqttOFF;
+  bool pisca_red;
+  bool pisca_green;
+} Erro;
 
+typedef struct
+{
+  bool envia_mqtt;
+  bool recebe_mqtt;
+} Dados;
+
+Erro erro;
+Dados dados;
+
+
+void setup()
+{
   Serial.begin(115200);
 
   if (inicializa_pinos() < 0)
@@ -155,42 +174,42 @@ void setup() {
   mqtt_init();
   client.subscribe(TOPIC1);
   client.setCallback(callback);
-
 }
 
-void loop() {
-
-
+void loop()
+{
   trata_timers();
   if ( fs_60s) // 1 minuto
   {
     fs_60s = 0;
     atualiza_display();
     sendValues();
-    if (sendValues)
-    {
+    /*
+      if (sendValues)
+      {
       countSEND = 0;
       while (countSEND < 1000000)
       {
-        digitalWrite(PIN_RED, LOW);
+        digitalWrite(LED_RED, LOW);
         countSEND ++;
       }
-      digitalWrite(PIN_RED, HIGH);
-    }
+      digitalWrite(LED_RED, HIGH);
+      }
+    */
   }
 
   if (fs_100ms)
   {
     fs_100ms = 0;
-    internet_off();
-    mqtt_off();
+    testa_erros();
+    aciona_alarmes();
     client.loop(); //permite o envio de mensagens publish (DEVE SER CHAMADA REGULARMENTE)
   }
 
   if (fs_1s)         // 1 segundo
-
   {
     fs_1s = 0;
+    trata_leds();
   }
 }
 
@@ -207,8 +226,8 @@ char inicializa_pinos(void)
   char ret;
 
   ret = -1;
-  pinMode(PIN_GREEN, OUTPUT);
-  pinMode(PIN_RED, OUTPUT);
+  pinMode(LED_GREEN, OUTPUT);
+  pinMode(LED_RED, OUTPUT);
   pinMode(PIN_FEED3, INPUT);
   pinMode(PIN_POS3, OUTPUT);
   pinMode(PIN_NEG3, OUTPUT);
@@ -229,7 +248,7 @@ char testa_display(void)
   ret = -1;
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   ret = 0;
-
+  return ret;
 }
 
 void inicializa_display(void)
@@ -241,11 +260,13 @@ void inicializa_display(void)
 
   display.clearDisplay();
   // Display Text
-  display.setTextSize(2);             // definição tamanho de letra para display
+  display.setTextSize(1.5);             // definição tamanho de letra para display
   display.setTextColor(WHITE);        // definição de cor de letra para display
   display.setRotation(2);
-  display.setCursor(6, 25);
-  display.print("SB PROJECT");
+  display.setCursor(23, 0); //6,25
+  display.println("SB PROJECT");
+  display.setCursor(0, 28); //6,25
+  display.print("Autor:" + engineerName);
   display.display();
 }
 
@@ -257,25 +278,36 @@ void atualiza_display(void)
         Definição de tela de acordo com status dos relés
   */
 
-  display.clearDisplay();
-  // Display Text
-  display.setTextSize(1.5);             // definição tamanho de letra para display
-  display.setTextColor(WHITE);        // definição de cor de letra para display
-  display.setRotation(2);
-  display.setCursor(20, 0);
-  display.print("STATUS DO RELE");
-  display.setCursor(0, 26);
-  display.print("RELE 3:");
+
   if (digitalRead(PIN_FEED3) == 0)
   {
-    display.println("OFF");
+    estado = 0;
   }
   else
   {
-    display.println("ON");
+    estado = 1;
   }
-  display.display();
 
+  switch (estado)
+  {
+    case 0:
+      display.clearDisplay();
+      display.setCursor(20, 0);
+      display.print("STATUS DO RELE");
+      display.setCursor(0, 26);
+      display.println("RELE 3: OFF");
+      display.display();
+      break;
+
+    case 1:
+      display.clearDisplay();
+      display.setCursor(20, 0);
+      display.print("STATUS DO RELE");
+      display.setCursor(0, 26);
+      display.println("RELE 3: ON");
+      display.display();
+      break;
+  }
 }
 
 void trata_timers(void)
@@ -285,29 +317,23 @@ void trata_timers(void)
          Definição de tempo de timers
   */
 
-  // função milis retorna o tempo que o microcontrolador está ligado
+  unsigned long t_atual;
+  t_atual = millis();  // função milis retorna o tempo que o microcontrolador está ligado
 
-  if (millis() > 1000 + millis_atual_1s) //1s
+  if (t_atual > 999 + millis_atual_1s) //1s
   {
-    millis_atual_1s = millis();
+    millis_atual_1s = t_atual;
     fs_1s = 1;
   }
-
-  if (millis() > 60000 + millis_atual_60s) //60s
+  if (t_atual > 59999 + millis_atual_60s) //60s
   {
-    millis_atual_60s = millis();
+    millis_atual_60s = t_atual;
     fs_60s = 1;
   }
-
-  if (millis() > 100 + millis_atual_100ms) //100ms
+  if (t_atual > 99 + millis_atual_100ms) //100ms
   {
-    millis_atual_100ms = millis();
+    millis_atual_100ms = t_atual;
     fs_100ms = 1;
-  }
-  if (millis() > 30000 + millis_atual_30s) //30s
-  {
-    millis_atual_30s = millis();
-    fs_30s = 1;
   }
 }
 
@@ -327,8 +353,8 @@ bool mqtt_init(void)
 
   //Exibe no monitor serial
   Serial.println("\nConnected to network");
-  digitalWrite(PIN_RED, LOW);
-  digitalWrite(PIN_GREEN, HIGH);
+  digitalWrite(LED_RED, LOW);
+  digitalWrite(LED_GREEN, HIGH);
 
   //Seta servidor com o broker e a porta
   client.setServer(SERVER, PORT);
@@ -341,63 +367,55 @@ bool mqtt_init(void)
   }
 
   Serial.println("MQTT - Connect ok");
-  digitalWrite(PIN_RED, HIGH);
+  digitalWrite(LED_RED, HIGH);
   return true;
 }
 
-void internet_off (void)
-
-/*      Descrição de funcionamento:
-
-        Rotina de verificação de conexão com o Wifi, caso haja desconexão
-        o led verde mudará de estado.
-*/
-
+void testa_erros (void)
 {
-  if (WiFi.status() != WL_CONNECTED)
+  (!client.connect(DEVICE_ID, TOKEN, "")) ? erro.mqttOFF = 1 : erro.mqttOFF = 0; //testa erro mqtt
+  (WiFi.status() != WL_CONNECTED) ? erro.internetOFF = 1 : erro.internetOFF = 0; //testa erro internet
+  atualiza_FLAGS_alarmes();
+}
+
+void atualiza_FLAGS_alarmes(void)
+{
+  (erro.mqttOFF      ) ? erro.aciona_mqttOFF = 1 : erro.aciona_mqttOFF = 0;         //flag para acionar alarme = 1
+  (erro.internetOFF  ) ? erro.aciona_internetOFF = 1 : erro.aciona_internetOFF = 0;
+}
+
+void aciona_alarmes(void)
+{
+  if (erro.aciona_mqttOFF)
   {
+    erro.pisca_red = !erro.pisca_red; //varia entre 0 e 1 o pisca
 
-    if (greenState == LOW)
+    if (erro.pisca_red)
     {
-      greenState = HIGH;
+      erro.aciona_mqttOFF ? digitalWrite(LED_RED, LOW) : digitalWrite(LED_RED, HIGH); //se o pisca for 1, entra aqui e apaga o led
     }
-
     else
     {
-      greenState = LOW;
+      digitalWrite(LED_RED, HIGH); //quando o pisca for 0, vem para cá e acende o led
     }
+  }
 
-    digitalWrite(PIN_GREEN, greenState);
+  if (erro.aciona_internetOFF)
+  {
+    erro.pisca_green = !erro.pisca_green;
 
+    if (erro.pisca_green)
+    {
+      erro.aciona_internetOFF ? digitalWrite(LED_GREEN, LOW) : digitalWrite(LED_GREEN, HIGH);
+    }
+    else
+    {
+      digitalWrite(LED_GREEN, HIGH);
+    }
   }
 }
 
-void mqtt_off (void)
-{
-  /*      Descrição de funcionamento:
-
-        Rotina de verificação de conexão com o MQTT, caso haja desconexão
-        o led vermelho irá mudar de estado.
-  */
-
-  if (!client.connect(DEVICE_ID, TOKEN, ""))
-  {
-    if (redState == LOW)
-    {
-      redState = HIGH;
-    }
-
-    else
-    {
-      redState = LOW;
-    }
-
-    digitalWrite(PIN_RED, redState);
-
-  }
-}
-
-bool sendValues(void)
+void sendValues(void)
 {
   /*      Descrição de funcionamento:
 
@@ -406,33 +424,58 @@ bool sendValues(void)
 
   char json[250];
   float feedback3 = digitalRead(PIN_FEED3);
-  //Serial.println(feedback3);
 
-  //Atribui para a cadeia de caracteres "json" os valores e os envia para a variável do ubidots correspondente
-  sprintf(json,  "{\"%s\":{\"value\":%02.02f}}", VARIABLE_LABEL_RELE3UP, feedback3);
+  sprintf(json,  "{\"%s\":{\"value\":%02.02f}}", VARIABLE_LABEL_RELE3UP, feedback3);  //Atribui para a cadeia de caracteres "json" os valores e os envia para a variável do ubidots correspondente
 
-  if (!client.publish(TOPIC, json))
-    return false;
+  (!client.publish(TOPIC, json)) ? dados.envia_mqtt = 0 : dados.envia_mqtt = 1; //se enviar, variável = 1
 
-  //Se tudo der certo retorna true
-  return true;
 }
 
-void callback(char* topic, byte* message, unsigned int length)
+void trata_leds(void)
+{
+  static unsigned char contador_pisca1 = 0; //static mantém o valor da variável 
+  bool pisca_on1 = 0;
+
+  if (dados.envia_mqtt)
+  {
+    contador_pisca1++;
+    if (contador_pisca1 > 1)
+    {
+      contador_pisca1 = 0;
+      pisca_on1 = !pisca_on1;
+    }
+
+    if (pisca_on1)
+    {
+      dados.envia_mqtt ? digitalWrite(LED_RED, LOW) : digitalWrite(LED_RED, HIGH);
+      dados.envia_mqtt = 0;
+
+    }
+    else
+    {
+      digitalWrite(LED_RED, HIGH);
+    }
+  }
+  else
+  {
+    contador_pisca1 = 0;
+    dados.envia_mqtt ? digitalWrite(LED_RED, LOW) : digitalWrite(LED_RED, HIGH);
+  }
+}
+
+void callback(char* topic, byte * message, unsigned int length)
 {
   /*      Descrição de funcionamento:
 
       Função para recepção do comando do MQTT broker (dashboard online)
   */
 
-  Serial.println("chegou");
-  Serial.println(topic);
-  Serial.println(length);
+  //Serial.println("chegou");
+  //Serial.println(topic);
+  //Serial.println(length);
   for (int i = 0; i < length; i++)
   {
     Serial.print((char)message[i]);
-    //recebido += (char)message[i];
-    //recebido = (char)message[i];
   }
   recebido = btof(message, length); //variável inteira
   trata_rele3();
@@ -459,7 +502,7 @@ void trata_rele3 (void)
 
     Rotina para acionar os relés, de acordo com o comando remoto recebido
   */
-
+  
   if (recebido == 1)
   {
     countRECEIVED1 = 0;
